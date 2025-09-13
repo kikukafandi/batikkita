@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Halaman Home
@@ -97,3 +98,8 @@ Route::get('/admin/dashboard', function() {
     ];
     return view('admin.dashboard', compact('stats', 'recentOrders'));
 });
+
+
+Route::get('/register',[AuthController::class,'registerPage'])->name('registerPage');
+Route::post('/register',[AuthController::class,'register'])->name('register');
+Route::get('/login',[AuthController::class,'loginPage'])->name('loginPage');
