@@ -17,7 +17,19 @@ class AuthController extends Controller
     {
         return view("auth.register");
     }
-    public function login(Request $request) {}
+    public function login(Request $request) {
+        $validated = $request->validate([
+            "email"=> "required|email",
+            "password"=> "required"
+        ]);
+        $user = User::where("email", $validated["email"])->first();
+        if ($user && Hash::check($validated["password"], $user->password)) {
+            Auth::login($user);
+            return redirect()->route("homePage");
+        } else {
+            return redirect()->route("loginPage")->with("error", "Email atau password salah");
+        }
+    }
 
     public function register(Request $request)
     {
@@ -61,4 +73,5 @@ class AuthController extends Controller
 
         return redirect()->route('loginPage')->with('success', 'Registrasi sukses! Silahkan login.');
     }
+
 }
