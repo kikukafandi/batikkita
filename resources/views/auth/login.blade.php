@@ -155,7 +155,7 @@
                 <div class="text-center">
                     <p class="text-gray-600">
                         Belum punya akun?
-                        <a href="register.html" class="custom-link">Daftar sekarang</a>
+                        <a href="{{ route('registerPage') }}" class="custom-link">Daftar sekarang</a>
                     </p>
                 </div>
 

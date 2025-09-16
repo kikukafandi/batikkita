@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 // 1. Halaman Home
@@ -103,3 +104,4 @@ Route::get('/admin/dashboard', function() {
 Route::get('/register',[AuthController::class,'registerPage'])->name('registerPage');
 Route::post('/register',[AuthController::class,'register'])->name('register');
 Route::get('/login',[AuthController::class,'loginPage'])->name('loginPage');
+Route::get('/seller/add-product',[ProductController::class,'create'])->name('add-product');

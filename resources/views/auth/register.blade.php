@@ -267,14 +267,14 @@
                 <div class="text-center">
                     <p class="text-gray-600">
                         Sudah punya akun?
-                        <a href="login.html" class="custom-link">Masuk di sini</a>
+                        <a href="{{ route('loginPage') }}" class="custom-link">Masuk di sini</a>
                     </p>
                 </div>
             </form>
         </div>
     </div>
 
-  <script>
+    <script>
         // Toggle password visibility
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
@@ -367,7 +367,7 @@
             }
             this.submit();
         });
-    </script>  
+    </script>
 </body>
 
 </html>

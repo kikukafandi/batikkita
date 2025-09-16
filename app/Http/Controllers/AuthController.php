@@ -54,7 +54,6 @@ class AuthController extends Controller
         }
 
         $validated = $request->validate($rules);
-
         $user = User::create([
             'name'     => $validated['firstName'] . ' ' . $validated['lastName'],
             'email'    => $validated['email'],
@@ -64,7 +63,7 @@ class AuthController extends Controller
 
         // Jika seller, masukkan ke tabel sellers
         if ($user->role === 'seller') {
-            $user->seller()->create([
+            $user->sellers()->create([
                 'store_name'        => $validated['storeName'],
                 'store_description' => $validated['storeDescription'] ?? null,
                 // address/logo/banner bisa ditambah
