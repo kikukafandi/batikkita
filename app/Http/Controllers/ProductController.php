@@ -28,8 +28,34 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:100',
+            'description' => 'required|string',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'image'       => 'required|image|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        $imagePath = $request->file('image')->store('products', 'public');
+
+        Product::create([
+            'seller_id'   => 1,
+            'name'        => $validated['name'],
+            'category'    => $validated['category'],
+            'description' => $validated['description'],
+            'price'       => $validated['price'],
+            'stock'       => $validated['stock'],
+            'image'       => $imagePath,
+            // mockup_preview dikosongkan, akan dipakai di sisi pembeli
+        ]);
+
+        return redirect()
+            ->route('seller.dashboard')
+            ->with('success', 'Produk berhasil ditambahkan!');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -44,7 +70,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        dd($product);
+        return view('seller.edit-product', compact('product'));
     }
 
     /**

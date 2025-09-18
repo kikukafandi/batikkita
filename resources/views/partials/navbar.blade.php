@@ -10,10 +10,10 @@
             </div>
             <nav class="hidden md:flex space-x-6">
                 <a href="/" class="hover:text-batik-gold transition">Beranda</a>
-                <a href="products" class="hover:text-batik-gold transition">Produk</a>
-                <a href="cart" class="hover:text-batik-gold transition">Keranjang</a>
-                <a href="seller/dashboard" class="hover:text-batik-gold transition">Seller</a>
-                <a href="admin/dashboard" class="hover:text-batik-gold transition">Admin</a>
+                <a href="/products" class="hover:text-batik-gold transition">Produk</a>
+                <a href="/cart" class="hover:text-batik-gold transition">Keranjang</a>
+                <a href="/seller/dashboard" class="hover:text-batik-gold transition">Seller</a>
+                <a href="/admin/dashboard" class="hover:text-batik-gold transition">Admin</a>
             </nav>
             <div class="flex items-center space-x-4">
                 <a href="cart.html" class="relative">

@@ -2,6 +2,18 @@
 
 @section('content')
     <div class="container mx-auto px-4 py-8">
+        @if (session('success'))
+            <div class="mb-4 p-4 rounded-lg bg-green-100 border border-green-300 text-green-800">
+                ✅ {{ session('success') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="mb-4 p-4 rounded-lg bg-red-100 border border-red-300 text-red-800">
+                ⚠️ {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Dashboard Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-batik-maroon mb-2">Dashboard Seller</h1>

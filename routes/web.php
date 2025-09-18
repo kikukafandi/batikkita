@@ -82,7 +82,7 @@ Route::get('/seller/dashboard', function() {
         ['id' => 'ORD-003', 'customer' => 'Citra Lestari', 'total' => 'Rp 500.000', 'status' => 'Dikemas'],
     ];
     return view('seller.dashboard', compact('products', 'orders'));
-});
+})->name('seller.dashboard');
 
 // 7. Halaman Dashboard Admin
 Route::get('/admin/dashboard', function() {
@@ -104,4 +104,8 @@ Route::get('/admin/dashboard', function() {
 Route::get('/register',[AuthController::class,'registerPage'])->name('registerPage');
 Route::post('/register',[AuthController::class,'register'])->name('register');
 Route::get('/login',[AuthController::class,'loginPage'])->name('loginPage');
-Route::get('/seller/add-product',[ProductController::class,'create'])->name('add-product');
+Route::get('/seller/add-product',[ProductController::class,'create'])->name('seller.add-product');
+Route::post('/seller/add-product',[ProductController::class,'store'])->name('product.store');
+Route::get('/seller/edit-product/{id}',[ProductController::class,'edit'])->name('product.edit');
+Route::put('/seller/edit-product/{id}',[ProductController::class,'update'])->name('product.update');
+Route::delete('/seller/edit-product/{id}',[ProductController::class,'destroy'])->name('product.destroy');

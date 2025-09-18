@@ -1,13 +1,15 @@
 @extends('layouts.seller')
+
 @section('content')
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-4xl mx-auto">
             <!-- Page Header -->
             <div class="text-center mb-8">
-                <h2 class="text-4xl font-bold text-batik-maroon mb-4">Tambah Produk Batik</h2>
-                <p class="text-gray-600 text-lg">Daftarkan produk batik Anda untuk dijual di platform kami</p>
+                <h2 class="text-4xl font-bold text-batik-maroon mb-4">Edit Produk Batik</h2>
+                <p class="text-gray-600 text-lg">Perbarui detail produk batik Anda</p>
             </div>
+
             @if ($errors->any())
                 <div class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
                     <strong>Terjadi kesalahan:</strong>
@@ -19,12 +21,13 @@
                 </div>
             @endif
 
-            <!-- Form tambah produk -->
-            <form id="addProductForm" class="space-y-6" action="{{ route('product.store') }}" method="POST"
+            <!-- Form edit produk -->
+            <form id="editProductForm" class="space-y-6" action="{{ route('product.update', $product->id) }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
+                @method('PUT') {{-- penting untuk method update --}}
 
-                <!-- Basic Information Section -->
+                <!-- Informasi Dasar -->
                 <div class="form-section">
                     <h3 class="section-title">Informasi Dasar Produk</h3>
 
@@ -32,20 +35,20 @@
                         <div>
                             <label for="name" class="block text-batik-maroon font-semibold mb-2">Nama Produk *</label>
                             <input type="text" id="name" name="name" class="custom-input"
-                                placeholder="Contoh: Batik Tulis Parang Jogja" required>
+                                value="{{ old('name', $product->name) }}" placeholder="Contoh: Batik Tulis Parang Jogja"
+                                required>
                         </div>
 
                         <div>
                             <label for="category" class="block text-batik-maroon font-semibold mb-2">Kategori *</label>
                             <select id="category" name="category" class="custom-select" required>
                                 <option value="">Pilih Kategori</option>
-                                <option value="kemeja">Kemeja Batik</option>
-                                <option value="dress">Dress Batik</option>
-                                <option value="kain">Kain Batik</option>
-                                <option value="blouse">Blouse Batik</option>
-                                <option value="sarung">Sarung Batik</option>
-                                <option value="aksesoris">Aksesoris Batik</option>
-                                <option value="seragam">Seragam Batik</option>
+                                @foreach (['kemeja', 'dress', 'kain', 'blouse', 'sarung', 'aksesoris', 'seragam'] as $cat)
+                                    <option value="{{ $cat }}"
+                                        {{ old('category', $product->category) == $cat ? 'selected' : '' }}>
+                                        {{ ucfirst($cat) }} Batik
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -54,71 +57,79 @@
                         <label for="description" class="block text-batik-maroon font-semibold mb-2">Deskripsi Produk
                             *</label>
                         <textarea id="description" name="description" rows="4" class="custom-textarea"
-                            placeholder="Jelaskan detail produk batik Anda..." required></textarea>
+                            placeholder="Jelaskan detail produk batik Anda..." required>{{ old('description', $product->description) }}</textarea>
                     </div>
                 </div>
 
-                <!-- Pricing & Stock Section -->
+                <!-- Harga & Stok -->
                 <div class="form-section">
                     <h3 class="section-title">Harga & Stok</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="price" class="block text-batik-maroon font-semibold mb-2">Harga (Rp) *</label>
-                            <input type="number" id="price" name="price" class="custom-input" placeholder="150000"
-                                min="0" required>
+                            <input type="number" id="price" name="price" class="custom-input"
+                                value="{{ old('price', $product->price) }}" min="0" required>
                         </div>
 
                         <div>
                             <label for="stock" class="block text-batik-maroon font-semibold mb-2">Stok *</label>
-                            <input type="number" id="stock" name="stock" class="custom-input" placeholder="10"
-                                min="0" required>
+                            <input type="number" id="stock" name="stock" class="custom-input"
+                                value="{{ old('stock', $product->stock) }}" min="0" required>
                         </div>
                     </div>
                 </div>
 
-                <!-- Images Section -->
+                <!-- Foto Produk -->
                 <div class="form-section">
                     <h3 class="section-title">Foto Produk</h3>
                     <div>
                         <label class="block text-batik-maroon font-semibold mb-2">Foto Utama *</label>
+
+                        {{-- preview lama --}}
+                        <div class="mb-4">
+                            @if ($product->image)
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="Foto lama"
+                                    class="rounded-lg shadow max-h-64 mx-auto">
+                            @endif
+                        </div>
+
                         <div class="image-preview cursor-pointer" id="mainImagePreview">
-                            <input type="file" id="image" name="image" accept="image/*" class="hidden" required>
+                            <input type="file" id="image" name="image" accept="image/*" class="hidden">
                             <div class="preview-content">
                                 <div class="text-6xl text-batik-gold mb-4">📷</div>
-                                <p class="text-batik-maroon font-medium">Klik atau seret foto utama produk</p>
+                                <p class="text-batik-maroon font-medium">Klik atau seret untuk ganti foto</p>
                                 <p class="text-sm text-gray-500 mt-2">Format: JPG, PNG (Max: 5MB)</p>
                             </div>
                         </div>
-                        <!-- Tempat preview hasil crop -->
+
                         <div class="mt-4">
                             <img id="previewImage" style="max-width: 100%; display: none;" class="rounded-lg shadow" />
                         </div>
-                    </div>
 
-                    <!-- Modal crop -->
-                    <div id="cropModal"
-                        class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-                        <div class="bg-white p-4 rounded-lg max-w-lg w-full">
-                            <h3 class="text-lg font-semibold mb-2">Crop Gambar</h3>
-                            <div>
-                                <img id="cropImage" style="max-width: 100%;" />
-                            </div>
-                            <div class="mt-4 flex justify-end gap-2">
-                                <button type="button" onclick="closeCropper()"
-                                    class="px-4 py-2 bg-gray-400 text-white rounded">Batal</button>
-                                <button type="button" onclick="cropImageNow()"
-                                    class="px-4 py-2 bg-batik-maroon text-white rounded">Simpan Crop</button>
+                        <!-- Modal crop tetap sama -->
+                        <div id="cropModal"
+                            class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                            <div class="bg-white p-4 rounded-lg max-w-lg w-full">
+                                <h3 class="text-lg font-semibold mb-2">Crop Gambar</h3>
+                                <div>
+                                    <img id="cropImage" style="max-width: 100%;" />
+                                </div>
+                                <div class="mt-4 flex justify-end gap-2">
+                                    <button type="button" onclick="closeCropper()"
+                                        class="px-4 py-2 bg-gray-400 text-white rounded">Batal</button>
+                                    <button type="button" onclick="cropImageNow()"
+                                        class="px-4 py-2 bg-batik-maroon text-white rounded">Simpan Crop</button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-
                 <!-- Action Button -->
                 <div class="flex justify-center pt-6">
                     <button type="submit" class="custom-button px-8 py-3">
-                        ✅ Publikasikan Produk
+                        💾 Update Produk
                     </button>
                 </div>
             </form>
