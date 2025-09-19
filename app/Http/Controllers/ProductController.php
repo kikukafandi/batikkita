@@ -70,7 +70,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        dd($product);
+        $product->load('seller');
         return view('seller.edit-product', compact('product'));
     }
 
@@ -79,8 +79,29 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'category'    => 'required|string|max:100',
+            'description' => 'required|string',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'image'       => 'nullable|image|mimes:jpg,jpeg,png|max:5120'
+        ]);
+
+        // Jika ada file baru, simpan
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $validated['image'] = $imagePath;
+        }
+
+        // Update data produk
+        $product->update($validated);
+
+        return redirect()
+            ->route('seller.dashboard')
+            ->with('success', 'Produk berhasil diperbarui!');
     }
+
 
     /**
      * Remove the specified resource from storage.
