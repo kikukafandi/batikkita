@@ -19,112 +19,51 @@
     <section class="py-16">
         <div class="container mx-auto px-4">
             <h3 class="text-3xl font-bold text-center text-batik-maroon mb-12">Produk Pilihan</h3>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Product 1 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-gold to-batik-brown flex items-center justify-center">
-                        <span class="text-white text-6xl">🎨</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Tulis Parang Klasik</h4>
-                        <p class="text-gray-600 mb-4">Batik tulis tradisional dengan motif parang yang elegan</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 450.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
-                        </div>
-                    </div>
-                </div>
+                @foreach ($products as $product)
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
 
-                <!-- Product 2 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-brown to-batik-maroon flex items-center justify-center">
-                        <span class="text-white text-6xl">🌸</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Cap Kawung Modern</h4>
-                        <p class="text-gray-600 mb-4">Batik cap dengan motif kawung dalam sentuhan modern</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 320.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
+                        <!-- Gambar Produk -->
+                        <div class="h-64 bg-gray-100 flex items-center justify-center">
+                            @if ($product->image)
+                                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}"
+                                    class="h-full w-full object-cover">
+                            @else
+                                <span class="text-gray-400 text-6xl">🧵</span>
+                            @endif
                         </div>
-                    </div>
-                </div>
 
-                <!-- Product 3 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-gold to-yellow-600 flex items-center justify-center">
-                        <span class="text-white text-6xl">🦋</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Print Mega Mendung</h4>
-                        <p class="text-gray-600 mb-4">Batik print dengan motif mega mendung khas Cirebon</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 180.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
+                        <!-- Konten -->
+                        <div class="p-6">
+                            <h4 class="text-xl font-semibold text-batik-maroon mb-2">
+                                {{ $product->name }}
+                            </h4>
+                            <p class="text-gray-600 mb-4">
+                                {{ Str::limit($product->description, 80, '...') }}
+                            </p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-2xl font-bold text-batik-gold">
+                                    Rp {{ number_format($product->price, 0, ',', '.') }}
+                                </span>
+                                <button class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">
+                                    Beli
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-maroon to-red-800 flex items-center justify-center">
-                        <span class="text-white text-6xl">🌺</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Tulis Truntum</h4>
-                        <p class="text-gray-600 mb-4">Batik tulis dengan motif truntum untuk acara khusus</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 520.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 5 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-brown to-amber-700 flex items-center justify-center">
-                        <span class="text-white text-6xl">🍃</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Cap Sido Mukti</h4>
-                        <p class="text-gray-600 mb-4">Batik cap dengan motif sido mukti yang membawa keberuntungan
-                        </p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 380.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 6 -->
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                    <div class="h-64 bg-gradient-to-br from-batik-gold to-orange-600 flex items-center justify-center">
-                        <span class="text-white text-6xl">🌙</span>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="text-xl font-semibold text-batik-maroon mb-2">Batik Print Sekar Jagad</h4>
-                        <p class="text-gray-600 mb-4">Batik print dengan motif sekar jagad yang penuh makna</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-batik-gold">Rp 220.000</span>
-                            <button
-                                class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">Beli</button>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <div class="text-center mt-12">
-                <a href="products.html"
-                    class="bg-batik-gold text-batik-maroon px-8 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">Lihat
-                    Semua Produk</a>
+                <a href="{{ route('products.index') }}"
+                    class="bg-batik-gold text-batik-maroon px-8 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">
+                    Lihat Semua Produk
+                </a>
             </div>
         </div>
     </section>
+
 
     <!-- About Section -->
     <section class="bg-batik-maroon text-white py-16">

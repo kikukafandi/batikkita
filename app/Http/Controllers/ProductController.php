@@ -10,10 +10,44 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        // Default query: produk terbaru
+        $query = Product::latest();
+
+        // Filter kategori
+        if ($request->filled('category') && $request->category !== 'all') {
+            $query->where('category', $request->category);
+        }
+
+        // Filter harga
+        if ($request->filled('price')) {
+            if ($request->price == 'low') {
+                $query->where('price', '<', 200000);
+            } elseif ($request->price == 'mid') {
+                $query->whereBetween('price', [200000, 400000]);
+            } elseif ($request->price == 'high') {
+                $query->where('price', '>', 400000);
+            }
+        }
+
+        // Urutan (sorting)
+        if ($request->filled('sort')) {
+            if ($request->sort == 'low_price') {
+                $query->orderBy('price', 'asc');
+            } elseif ($request->sort == 'high_price') {
+                $query->orderBy('price', 'desc');
+            } else {
+                $query->latest(); // default: terbaru
+            }
+        }
+
+        // Ambil data dengan pagination (9 produk per halaman)
+        $products = $query->paginate(9);
+        // Kirim ke view
+        return view('products.index', compact('products'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -60,9 +94,12 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show($id)
     {
-        //
+        // Ambil produk berdasarkan ID
+        $product = Product::with('seller')->findOrFail($id);
+
+        return view('products.show', compact('product'));
     }
 
     /**
