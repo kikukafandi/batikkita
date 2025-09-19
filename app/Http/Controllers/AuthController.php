@@ -94,4 +94,6 @@ class AuthController extends Controller
         return redirect()->route('loginPage')
             ->with('success', 'Registrasi sukses! Silakan login.');
     }
+
+    
 }

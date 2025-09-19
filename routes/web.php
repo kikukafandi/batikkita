@@ -103,6 +103,8 @@ Route::get('/admin/dashboard', function() {
 
 Route::get('/register',[AuthController::class,'registerPage'])->name('registerPage');
 Route::post('/register',[AuthController::class,'register'])->name('register');
+Route::post('/login',[AuthController::class,'login'])->name('login');
+
 Route::get('/login',[AuthController::class,'loginPage'])->name('loginPage');
 Route::get('/seller/add-product',[ProductController::class,'create'])->name('seller.add-product');
 Route::post('/seller/add-product',[ProductController::class,'store'])->name('product.store');

@@ -87,9 +87,9 @@
                     <h1 class="text-2xl font-bold">Batik Nusantara</h1>
                 </div>
                 <nav class="hidden md:flex space-x-6">
-                    <a href="index.html" class="hover:text-batik-gold transition">Beranda</a>
-                    <a href="products.html" class="hover:text-batik-gold transition">Produk</a>
-                    <a href="register.html" class="hover:text-batik-gold transition">Daftar</a>
+                    <a href="/" class="hover:text-batik-gold transition">Beranda</a>
+                    <a href="products" class="hover:text-batik-gold transition">Produk</a>
+                    <a href="register" class="hover:text-batik-gold transition">Daftar</a>
                 </nav>
             </div>
         </div>
@@ -121,7 +121,8 @@
                 </div>
             @endif
 
-            <form id="loginForm" class="space-y-6">
+            <form id="loginForm" class="space-y-6" action="{{ route('login') }}" method="POST">
+                @csrf
                 <div>
                     <label for="email" class="block text-batik-maroon font-semibold mb-2">Email</label>
                     <input type="email" id="email" name="email" class="custom-input w-full"
@@ -193,33 +194,7 @@
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
 
-        // Form submission
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            // Basic validation
-            if (!email || !password) {
-                alert('Mohon lengkapi semua field!');
-                return;
-            }
-
-            // Simulate login process
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-
-            submitButton.textContent = 'Memproses...';
-            submitButton.disabled = true;
-
-            setTimeout(() => {
-                alert('Login berhasil! Selamat datang di Batik Nusantara.');
-                // Redirect to dashboard or home page
-                window.location.href = 'index.html';
-            }, 1500);
-        });
-
+        
         // Input focus effects
         document.querySelectorAll('.custom-input').forEach(input => {
             input.addEventListener('focus', function() {
