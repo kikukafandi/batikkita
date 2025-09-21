@@ -95,5 +95,13 @@ class AuthController extends Controller
             ->with('success', 'Registrasi sukses! Silakan login.');
     }
 
-    
+    public function destroy(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/'); 
+    }
 }

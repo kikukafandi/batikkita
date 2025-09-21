@@ -5,18 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
-// 1. Halaman Home
-// Route::get('/', function () {
-//     $products = [
-//         ['id' => 1, 'name' => 'Batik Parang Kusumo', 'price' => 'Rp 450.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Parang'],
-//         ['id' => 2, 'name' => 'Batik Mega Mendung', 'price' => 'Rp 350.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Mega+Mendung'],
-//         ['id' => 3, 'name' => 'Batik Kawung', 'price' => 'Rp 375.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Kawung'],
-//         ['id' => 4, 'name' => 'Batik Sidomukti', 'price' => 'Rp 500.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Sidomukti'],
-//         ['id' => 5, 'name' => 'Batik Tujuh Rupa', 'price' => 'Rp 320.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Tujuh+Rupa'],
-//         ['id' => 6, 'name' => 'Batik Lasem', 'price' => 'Rp 550.000', 'image' => 'https://placehold.co/400x400/F5F5DC/4E342E?text=Batik+Lasem'],
-//     ];
-//     return view('home', compact('products'));
-// });
+Route::get("/profile", [HomeController::class,"profile"])->name("profile");
 Route::get("/", [HomeController::class,"index"])->name("homePage");
 
 // 2. Halaman Daftar Produk
@@ -85,3 +74,8 @@ Route::post('/seller/add-product',[ProductController::class,'store'])->name('pro
 Route::get('/seller/edit-product/{product}',[ProductController::class,'edit'])->name('product.edit');
 Route::put('/seller/edit-product/{product}',[ProductController::class,'update'])->name('product.update');
 Route::delete('/seller/edit-product/{product}',[ProductController::class,'destroy'])->name('product.destroy');
+
+Route::delete('/logout', [AuthController::class, 'destroy'])->name('logout');
+
+// web.php
+Route::post('/trial/upload', [ProductController::class, 'trial'])->name('trial.upload');

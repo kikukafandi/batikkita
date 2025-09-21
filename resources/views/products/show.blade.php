@@ -100,6 +100,11 @@
                         class="w-full border-2 border-batik-brown text-batik-brown py-3 rounded-lg font-semibold hover:bg-batik-brown hover:text-white transition">
                         ❤️ Tambah ke Wishlist
                     </button>
+                    <button
+                        class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                        onclick="document.getElementById('trial-modal').classList.remove('hidden')">
+                        👕 Coba Batik
+                    </button>
                 </div>
 
                 <!-- Seller Info -->
@@ -122,6 +127,15 @@
                         <p class="text-gray-600">Penjual tidak tersedia</p>
                     @endif
                 </div>
+
+                @if (session('mockup'))
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-batik-brown mb-3">Hasil Trial Batik</h3>
+                        <img src="{{ asset('storage/' . session('mockup')) }}" alt="Hasil Trial Batik"
+                            class="w-full rounded-lg shadow-md">
+                    </div>
+                @endif
+
             </div>
         </div>
 
@@ -133,4 +147,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Trial Batik Modal -->
+    <div id="trial-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+            <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+                onclick="document.getElementById('trial-modal').classList.add('hidden')">✖</button>
+
+            <h2 class="text-2xl font-bold text-batik-maroon mb-4">Coba Batik Virtual</h2>
+
+            <form action="{{ route('trial.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block font-semibold">Upload Foto (baju polos)</label>
+                    <input type="file" name="user_photo" accept="image/*" required class="w-full border p-2 rounded">
+                </div>
+
+                <!-- kirim path gambar produk -->
+                <input type="hidden" name="product_image" value="{{ $product->image }}">
+
+                <button type="submit" class="w-full bg-batik-maroon text-white py-2 rounded">
+                    Proses Mockup
+                </button>
+            </form>
+        </div>
+    </div>
+
 @endsection
