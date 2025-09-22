@@ -42,6 +42,9 @@ class CartController extends Controller
 
         $user = auth()->user();
 
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
         // Cari keranjang user atau buat baru
         $cart = Cart::firstOrCreate(
             ['user_id' => $user->id],

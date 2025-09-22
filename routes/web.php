@@ -94,4 +94,6 @@ Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.dest
 
 // (Opsional) Kosongkan keranjang sekaligus
 Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
- Route::post('/checkout/direct', [OrderController::class, 'directCheckout'])->name('checkout.direct');
+Route::post('/checkout/direct', [OrderController::class, 'directCheckout'])->name('checkout.direct');
+Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout.index');
+Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');

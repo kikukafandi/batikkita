@@ -2,91 +2,104 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Models\Product;
+use App\Models\{Cart, Order, OrderItem, Product};
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Direct checkout a single product.
      */
     public function directCheckout(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity'   => 'required|integer|min:1',
         ]);
 
-        $product = Product::findOrFail($request->product_id);
+        /** @var \App\Models\Product $product */
+        $product = Product::findOrFail($validated['product_id']);
 
-        // Buat order langsung (bisa tambahkan alamat & pembayaran nanti)
+        /** @var \App\Models\Order $order */
         $order = Order::create([
-            'user_id' => auth()->id(),
-            'address_id' => null, // nanti pilih di halaman checkout
-            'total_amount' => $product->price * $request->quantity,
-            'status' => 'pending',
+            'user_id'      => Auth::id(),
+            'address_id'   => null,
+            'total_amount' => $product->price * $validated['quantity'],
+            'status'       => 'pending',
         ]);
 
-        // Masukkan order item
         $order->items()->create([
             'product_id' => $product->id,
-            'quantity' => $request->quantity,
-            'price' => $product->price,
-            'subtotal' => $product->price * $request->quantity,
+            'quantity'   => $validated['quantity'],
+            'price'      => $product->price,
+            'subtotal'   => $product->price * $validated['quantity'],
         ]);
 
-        // Arahkan ke halaman checkout
-        return redirect()->route('checkout.show', $order->id)
+        return redirect()
+            ->route('checkout.show', $order->id)
             ->with('success', 'Silakan selesaikan pesanan Anda.');
     }
 
-
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Checkout all items in cart.
      */
     public function store(Request $request)
     {
-        //
+
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+        }
+        /** @var \App\Models\Cart|null $cart */
+        $cart = Cart::with('items.product')
+            ->where('user_id', Auth::id())
+            ->first();
+            
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Keranjang kosong!');
+        }
+
+        /** @var \App\Models\Order $order */
+        $order = Order::create([
+            'user_id'      => Auth::id(),
+            'total_amount' => $cart->items->sum(fn($item) => $item->price * $item->quantity),
+            'status'       => 'pending',
+        ]);
+
+        foreach ($cart->items as $item) {
+            OrderItem::create([
+                'order_id'   => $order->id,
+                'product_id' => $item->product_id,
+                'quantity'   => $item->quantity,
+                'price'      => $item->price,
+            ]);
+        }
+
+        $cart->items()->delete();
+
+        return redirect()
+            ->route('checkout.index')
+            ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Order $order)
+    public function checkout()
     {
-        //
+        $cart = Cart::with('items.product')
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (!$cart || $cart->items->isEmpty()) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Keranjang masih kosong!');
+        }
+
+        return view('checkout.index', [
+            'cart'  => $cart,
+            'items' => $cart->items,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
-    }
+    // edit, update, destroy: tetap default
 }
