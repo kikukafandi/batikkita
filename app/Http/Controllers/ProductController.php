@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Seller;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Intervention\Image\Facades\Image;
 
@@ -74,8 +76,11 @@ class ProductController extends Controller
 
         $imagePath = $request->file('image')->store('products', 'public');
 
+        $userId = auth()->id();
+        $sellerId = Seller::where('user_id', $userId)->value('id');
+        // atau kalo mau seluruh object:
         Product::create([
-            'seller_id'   => 1,
+            'seller_id'   =>  $sellerId,
             'name'        => $validated['name'],
             'category'    => $validated['category'],
             'description' => $validated['description'],

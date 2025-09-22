@@ -88,14 +88,30 @@
 
                 <!-- Action Buttons -->
                 <div class="space-y-3">
-                    <button
-                        class="w-full bg-batik-maroon text-white py-3 rounded-lg font-semibold hover:bg-red-900 transition">
-                        Tambah ke Keranjang
-                    </button>
-                    <button
-                        class="w-full bg-batik-gold text-batik-maroon py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">
-                        Beli Sekarang
-                    </button>
+                    <!-- Form Tambah ke Keranjang -->
+                    <form action="{{ route('cart.store') }}" method="POST" class="space-y-3">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="quantity" value="1"> {{-- default 1, bisa diubah --}}
+
+                        <button type="submit"
+                            class="w-full bg-batik-maroon text-white py-3 rounded-lg font-semibold hover:bg-red-900 transition">
+                            🛒 Tambah ke Keranjang
+                        </button>
+                    </form>
+
+                    <!-- Form Beli Sekarang -->
+                    <form action="{{ route('checkout.direct') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="quantity" value="1">
+
+                        <button type="submit"
+                            class="w-full bg-batik-gold text-batik-maroon py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">
+                            ⚡ Beli Sekarang
+                        </button>
+                    </form>
+
                     <button
                         class="w-full border-2 border-batik-brown text-batik-brown py-3 rounded-lg font-semibold hover:bg-batik-brown hover:text-white transition">
                         ❤️ Tambah ke Wishlist

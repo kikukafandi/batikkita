@@ -192,23 +192,30 @@
             <!-- Quick Actions & Analytics -->
             <div class="space-y-6">
                 <!-- Quick Actions -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-xl font-bold text-batik-maroon mb-6">Aksi Cepat</h2>
-                    <div class="space-y-3">
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-lg font-bold text-batik-maroon mb-5">Aksi Cepat</h2>
+
+                    <div class="flex flex-col gap-3">
+                        <!-- Tambah Produk Baru -->
+                        <a href="{{ route('product.create') }}"
+                            class="flex items-center justify-center gap-2 w-full bg-batik-maroon text-white py-3 rounded-lg font-medium hover:bg-red-900 transition">
+                            ➕ Tambah Produk Baru
+                        </a>
+
+                        <!-- Lihat Laporan -->
                         <button
-                            class="w-full bg-batik-maroon text-white py-3 rounded-lg font-semibold hover:bg-red-900 transition">
-                            + Tambah Produk Baru
-                        </button>
-                        <button
-                            class="w-full bg-batik-gold text-batik-maroon py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">
+                            class="flex items-center justify-center gap-2 w-full bg-batik-gold text-batik-maroon py-3 rounded-lg font-medium hover:bg-yellow-400 transition">
                             📊 Lihat Laporan
                         </button>
+
+                        <!-- Pengaturan Toko -->
                         <button
-                            class="w-full border-2 border-batik-brown text-batik-brown py-3 rounded-lg font-semibold hover:bg-batik-brown hover:text-white transition">
+                            class="flex items-center justify-center gap-2 w-full border-2 border-batik-brown text-batik-brown py-3 rounded-lg font-medium hover:bg-batik-brown hover:text-white transition">
                             ⚙️ Pengaturan Toko
                         </button>
                     </div>
                 </div>
+
 
                 <!-- Top Products -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
