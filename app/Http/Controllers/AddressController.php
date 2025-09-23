@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
 {
@@ -28,22 +29,28 @@ class AddressController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // PASTIKAN SEMUA FIELD DARI FORM ADA DI SINI
+        $validated = $request->validate([
             'recipient_name' => 'required|string|max:255',
-            'phone'          => 'required|string|max:20',
+            'phone'          => 'required|string|max:255',
             'province'       => 'required|string|max:255',
             'city'           => 'required|string|max:255',
             'district'       => 'required|string|max:255',
-            'postal_code'    => 'required|string|max:20',
+            'postal_code'    => 'required|string|max:255',
             'detail'         => 'required|string',
         ]);
 
-        auth()->user()->addresses()->create($request->all() + ['is_primary' => 1]);
+        $user = Auth::user();
+        $user->addresses()->update(['is_primary' => 0]);
 
-        return redirect()->route('checkout.direct')
-            ->with('message', 'Alamat berhasil disimpan 🚀');
+        // Gunakan $validated untuk keamanan
+        $address = $user->addresses()->create(array_merge($validated, [
+            'is_primary' => 1
+        ]));
+
+        // Kembalikan response JSON jika berhasil
+        return response()->json(['id' => $address->id, 'message' => 'Alamat berhasil disimpan!']);
     }
-
 
     /**
      * Display the specified resource.

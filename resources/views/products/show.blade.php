@@ -77,10 +77,10 @@
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold text-batik-brown mb-3">Jumlah</h3>
                     <div class="flex items-center space-x-3">
-                        <button
+                        <button type="button" id="decreaseQty"
                             class="w-10 h-10 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 transition">-</button>
-                        <span class="text-xl font-semibold">1</span>
-                        <button
+                        <span id="quantityDisplay" class="text-xl font-semibold">1</span>
+                        <button type="button" id="increaseQty"
                             class="w-10 h-10 border border-gray-300 rounded flex items-center justify-center hover:bg-gray-100 transition">+</button>
                         <span class="text-gray-600 ml-4">Stok: {{ $product->stock }} tersedia</span>
                     </div>
@@ -92,30 +92,25 @@
                     <form action="{{ route('cart.store') }}" method="POST" class="space-y-3">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1"> {{-- default 1, bisa diubah --}}
-
+                        <input type="hidden" id="quantityInput" name="quantity" value="1"> {{-- default 1 --}}
                         <button type="submit"
                             class="w-full bg-batik-maroon text-white py-3 rounded-lg font-semibold hover:bg-red-900 transition">
                             🛒 Tambah ke Keranjang
                         </button>
                     </form>
 
-                    <!-- Form Beli Sekarang -->
-                    <form action="{{ route('checkout.direct') }}" method="POST">
+                    <form id="buyNowForm" action="{{ route('checkout.buyNow') }}" method="POST">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
-                        <input type="hidden" name="quantity" value="1">
-
-                        <button type="submit"
+                        <input type="hidden" id="quantityInputBuy" name="quantity" value="1">
+                        <button type="button" id="btnBuyNow"
                             class="w-full bg-batik-gold text-batik-maroon py-3 rounded-lg font-semibold hover:bg-yellow-400 transition">
                             ⚡ Beli Sekarang
                         </button>
                     </form>
 
-                    <button
-                        class="w-full border-2 border-batik-brown text-batik-brown py-3 rounded-lg font-semibold hover:bg-batik-brown hover:text-white transition">
-                        ❤️ Tambah ke Wishlist
-                    </button>
+
+
                     <button
                         class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
                         onclick="document.getElementById('trial-modal').classList.remove('hidden')">
@@ -188,65 +183,177 @@
             </form>
         </div>
     </div>
-    <!-- Modal Tambah Alamat -->
-    <div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form class="modal-content" id="addressForm">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah Alamat Pengiriman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input class="form-control mb-2" name="recipient_name" placeholder="Nama Penerima" required>
-                    <input class="form-control mb-2" name="phone" placeholder="No. Telepon" required>
-                    <input class="form-control mb-2" name="province" placeholder="Provinsi" required>
-                    <input class="form-control mb-2" name="city" placeholder="Kota" required>
-                    <input class="form-control mb-2" name="district" placeholder="Kecamatan" required>
-                    <input class="form-control mb-2" name="postal_code" placeholder="Kode Pos" required>
-                    <textarea class="form-control" name="detail" placeholder="Detail Alamat" required></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Simpan Alamat</button>
-                </div>
-            </form>
+
+
+    <div id="addressModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 mx-4">
+
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h5 class="text-xl font-bold text-batik-maroon">Tambahkan Alamat Pengiriman</h5>
+                <button id="closeModalBtn" type="button"
+                    class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+
+            <div>
+                <form id="addressForm">
+                    @csrf
+                    <div class="space-y-4">
+                        <div>
+                            <label for="recipient_name" class="block text-sm font-medium text-gray-700">Nama
+                                Penerima</label>
+                            <input type="text" id="recipient_name" name="recipient_name" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
+                            <input type="text" id="phone" name="phone" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="province" class="block text-sm font-medium text-gray-700">Provinsi</label>
+                                <input type="text" id="province" name="province" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                            </div>
+                            <div>
+                                <label for="city"
+                                    class="block text-sm font-medium text-gray-700">Kota/Kabupaten</label>
+                                <input type="text" id="city" name="city" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="district" class="block text-sm font-medium text-gray-700">Kecamatan</label>
+                                <input type="text" id="district" name="district" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                            </div>
+                            <div>
+                                <label for="postal_code" class="block text-sm font-medium text-gray-700">Kode Pos</label>
+                                <input type="text" id="postal_code" name="postal_code" required
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="detail" class="block text-sm font-medium text-gray-700">Alamat Lengkap</label>
+                            <textarea id="detail" name="detail" rows="3" required
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-batik-maroon focus:border-batik-maroon"></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full bg-batik-maroon text-white py-2.5 rounded-lg font-semibold hover:bg-red-900 transition">
+                            Simpan dan Lanjutkan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
     @push('scripts')
         <script>
-            document.getElementById('btnCheckout').addEventListener('click', function() {
-                // kalau user belum punya alamat, tampilkan modal
-                @if(optional(auth()->user())->addresses && auth()->user()->addresses->isNotEmpty())
-                    new bootstrap.Modal(document.getElementById('addressModal')).show();
-                @else
-                    // user udah punya alamat utama → langsung submit
-                    document.getElementById('address_id').value =
-                        "{{ auth()->user()->addresses()->where('is_primary', 1)->value('id') }}";
-                    document.getElementById('checkoutForm').submit();
-                @endif
-            });
+            document.addEventListener("DOMContentLoaded", () => {
+                // === LOGIKA QTY (tidak berubah) ===
+                const decreaseBtn = document.getElementById("decreaseQty");
+                const increaseBtn = document.getElementById("increaseQty");
+                const quantityDisplay = document.getElementById("quantityDisplay");
+                const quantityInput = document.getElementById("quantityInput");
+                const quantityInputBuy = document.getElementById("quantityInputBuy");
+                const stock = {{ $product->stock }};
+                let qty = 1;
 
-            document.getElementById('addressForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                fetch("{{ route('addresses.store') }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        // isi hidden address_id lalu submit checkout
-                        document.getElementById('address_id').value = data.id;
-                        bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
-                        document.getElementById('checkoutForm').submit();
-                    })
-                    .catch(err => alert('Gagal menyimpan alamat 😅'));
+                decreaseBtn.addEventListener("click", () => {
+                    if (qty > 1) {
+                        qty--;
+                        updateQty();
+                    }
+                });
+
+                increaseBtn.addEventListener("click", () => {
+                    if (qty < stock) {
+                        qty++;
+                        updateQty();
+                    }
+                });
+
+                function updateQty() {
+                    quantityDisplay.textContent = qty;
+                    quantityInput.value = qty;
+                    quantityInputBuy.value = qty;
+                }
+
+                // === LOGIKA BARU UNTUK MODAL TAILWIND & BELI SEKARANG ===
+                const btnBuyNow = document.getElementById("btnBuyNow");
+                const buyNowForm = document.getElementById("buyNowForm");
+                const addressModal = document.getElementById('addressModal');
+                const closeModalBtn = document.getElementById('closeModalBtn');
+                const addressForm = document.getElementById("addressForm");
+
+                // Fungsi untuk menampilkan modal
+                function openModal() {
+                    addressModal.classList.remove('hidden');
+                }
+
+                // Fungsi untuk menyembunyikan modal
+                function hideModal() {
+                    addressModal.classList.add('hidden');
+                }
+
+                // Event listener untuk tombol "Beli Sekarang"
+                btnBuyNow.addEventListener("click", function() {
+                        @auth
+                        @if (auth()->user()->addresses()->where('is_primary', 1)->exists())
+                            // Jika sudah punya alamat utama, langsung submit
+                            buyNowForm.submit();
+                        @else
+                            // Jika belum, tampilkan modal
+                            openModal();
+                        @endif
+                    @else
+                        // Jika belum login, arahkan ke halaman login
+                        window.location.href = "{{ route('login') }}";
+                    @endauth
+                });
+
+            // Event listener untuk tombol close (X) di modal
+            closeModalBtn.addEventListener('click', hideModal);
+
+            // Event listener untuk form alamat di modal
+            if (addressForm) {
+                addressForm.addEventListener("submit", function(e) {
+                    e.preventDefault();
+                    const formData = new FormData(this);
+
+                    fetch("{{ route('addresses.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                "Accept": "application/json",
+                            },
+                            body: formData
+                        })
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error('Gagal menyimpan alamat.');
+                            }
+                            return res.json();
+                        })
+                        .then(data => {
+                            hideModal(); // Sembunyikan modal setelah berhasil
+                            buyNowForm.submit(); // Lanjutkan proses "Beli Sekarang"
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            alert("Gagal menyimpan alamat. Silakan periksa kembali data Anda. 😅");
+                        });
+                });
+            }
             });
         </script>
     @endpush
+
 
 @endsection

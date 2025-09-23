@@ -7,7 +7,7 @@
                 <div class="w-10 h-10 bg-batik-gold rounded-full flex items-center justify-center">
                     <span class="text-batik-maroon font-bold text-xl">B</span>
                 </div>
-                <h1 class="text-2xl font-bold">Batik Nusantara</h1>
+                <h1 class="text-2xl font-bold">bebatik.id</h1>
             </div>
 
             <!-- Navigation -->

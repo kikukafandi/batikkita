@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Batik Nusantara</title>
+    <title>Masuk - bebatik.id</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -84,7 +84,7 @@
                     <div class="w-10 h-10 bg-batik-gold rounded-full flex items-center justify-center">
                         <span class="text-batik-maroon font-bold text-xl">B</span>
                     </div>
-                    <h1 class="text-2xl font-bold">Batik Nusantara</h1>
+                    <h1 class="text-2xl font-bold">bebatik.id</h1>
                 </div>
                 <nav class="hidden md:flex space-x-6">
                     <a href="index.html" class="hover:text-batik-gold transition">Beranda</a>
