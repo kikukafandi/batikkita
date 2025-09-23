@@ -46,28 +46,44 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-
         $user = auth()->user();
         if (!$user) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login')
+                ->with('error', 'Silakan login terlebih dahulu.');
         }
-        /** @var \App\Models\Cart|null $cart */
+
+        // 1️⃣ Pastikan user punya alamat
+        $addressId = $request->input('address_id');
+        if (!$addressId) {
+            // fallback: ambil primary address
+            $addressId = $user->addresses()
+                ->where('is_primary', 1)
+                ->value('id');
+        }
+
+        if (!$addressId) {
+            return back()->with('error', 'Tambahkan alamat pengiriman dulu.');
+        }
+
+        // 2️⃣ Ambil cart
         $cart = Cart::with('items.product')
-            ->where('user_id', Auth::id())
+            ->where('user_id', $user->id)
             ->first();
-            
+
         if (!$cart || $cart->items->isEmpty()) {
             return redirect()->route('cart.index')
                 ->with('error', 'Keranjang kosong!');
         }
 
-        /** @var \App\Models\Order $order */
+        // 3️⃣ Buat order + address_id
         $order = Order::create([
-            'user_id'      => Auth::id(),
+            'user_id'     => $user->id,
+            'address_id'  => $addressId,
             'total_amount' => $cart->items->sum(fn($item) => $item->price * $item->quantity),
-            'status'       => 'pending',
+            'status'      => 'pending',
         ]);
 
+        // 4️⃣ Order items
         foreach ($cart->items as $item) {
             OrderItem::create([
                 'order_id'   => $order->id,
@@ -77,12 +93,14 @@ class OrderController extends Controller
             ]);
         }
 
+        // 5️⃣ Kosongkan cart
         $cart->items()->delete();
 
         return redirect()
             ->route('checkout.index')
             ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
     }
+
 
     public function checkout()
     {

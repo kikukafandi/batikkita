@@ -188,5 +188,65 @@
             </form>
         </div>
     </div>
+    <!-- Modal Tambah Alamat -->
+    <div class="modal fade" id="addressModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" id="addressForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Alamat Pengiriman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control mb-2" name="recipient_name" placeholder="Nama Penerima" required>
+                    <input class="form-control mb-2" name="phone" placeholder="No. Telepon" required>
+                    <input class="form-control mb-2" name="province" placeholder="Provinsi" required>
+                    <input class="form-control mb-2" name="city" placeholder="Kota" required>
+                    <input class="form-control mb-2" name="district" placeholder="Kecamatan" required>
+                    <input class="form-control mb-2" name="postal_code" placeholder="Kode Pos" required>
+                    <textarea class="form-control" name="detail" placeholder="Detail Alamat" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Simpan Alamat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            document.getElementById('btnCheckout').addEventListener('click', function() {
+                // kalau user belum punya alamat, tampilkan modal
+                @if(optional(auth()->user())->addresses && auth()->user()->addresses->isNotEmpty())
+                    new bootstrap.Modal(document.getElementById('addressModal')).show();
+                @else
+                    // user udah punya alamat utama → langsung submit
+                    document.getElementById('address_id').value =
+                        "{{ auth()->user()->addresses()->where('is_primary', 1)->value('id') }}";
+                    document.getElementById('checkoutForm').submit();
+                @endif
+            });
+
+            document.getElementById('addressForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                fetch("{{ route('addresses.store') }}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        // isi hidden address_id lalu submit checkout
+                        document.getElementById('address_id').value = data.id;
+                        bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
+                        document.getElementById('checkoutForm').submit();
+                    })
+                    .catch(err => alert('Gagal menyimpan alamat 😅'));
+            });
+        </script>
+    @endpush
 
 @endsection

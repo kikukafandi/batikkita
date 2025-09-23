@@ -46,9 +46,9 @@
                                 <span class="text-2xl font-bold text-batik-gold">
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 </span>
-                                <button class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">
-                                    Beli
-                                </button>
+                                <a href="{{ route('products.show', $product->id) }}" class="bg-batik-maroon text-white px-4 py-2 rounded hover:bg-red-900 transition">
+                                    Detail
+                                </a>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
@@ -97,3 +98,5 @@ Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
 Route::post('/checkout/direct', [OrderController::class, 'directCheckout'])->name('checkout.direct');
 Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout.index');
 Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');
+Route::get('/addresses/create', [AddressController::class, 'create'])->name('addresses.create');
+Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
