@@ -133,7 +133,7 @@
                     <label for="password" class="block text-batik-maroon font-semibold mb-2">Kata Sandi</label>
                     <div class="relative">
                         <input type="password" id="password" name="password" class="custom-input w-full pr-12"
-                            placeholder="Masukkan kata sandi" required>
+                            placeholder="Masukkan kata sandi" required autocomplete="off">
                         <button type="button" id="togglePassword"
                             class="absolute right-3 top-1/2 transform -translate-y-1/2 text-batik-brown hover:text-batik-maroon">
                             👁️

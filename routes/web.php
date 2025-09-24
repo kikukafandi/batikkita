@@ -4,6 +4,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MidtransController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
@@ -101,3 +102,7 @@ Route::get('/checkout', [OrderController::class, 'checkout'])->name('checkout.in
 Route::post('/checkout', [OrderController::class, 'store'])->name('checkout.store');
 Route::get('/addresses/create', [AddressController::class, 'create'])->name('addresses.create');
 Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+Route::post('/midtrans/webhook', [MidtransController::class, 'webhook'])->name('midtrans.webhook');
+Route::get('/orders/{order}/thank-you', [OrderController::class, 'thankYou'])->name('orders.thankYou');
+Route::get('/payment/finish', [OrderController::class, 'finish'])->name('orders.finish');
+Route::get('/payment/unfinish', [OrderController::class, 'unfinish'])->name('orders.unfinish');

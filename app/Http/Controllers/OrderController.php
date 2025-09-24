@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\{Cart, Order, OrderItem, Product};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Midtrans\Snap;
 
 class OrderController extends Controller
 {
@@ -110,59 +114,96 @@ class OrderController extends Controller
 
         $user = auth()->user();
         if (!$user) {
-            return redirect()->route('login')
-                ->with('error', 'Silakan login terlebih dahulu.');
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
-        // 1️⃣ Pastikan user punya alamat
-        $addressId = $request->input('address_id');
+        $addressId = $request->input('address_id', $user->addresses()->where('is_primary', 1)->value('id'));
         if (!$addressId) {
-            // fallback: ambil primary address
-            $addressId = $user->addresses()
-                ->where('is_primary', 1)
-                ->value('id');
+            return back()->with('error', 'Silakan pilih atau tambahkan alamat pengiriman dulu.');
         }
 
-        if (!$addressId) {
-            return back()->with('error', 'Tambahkan alamat pengiriman dulu.');
-        }
-
-        // 2️⃣ Ambil cart
-        $cart = Cart::with('items.product')
-            ->where('user_id', $user->id)
-            ->first();
-
+        $cart = Cart::with('items.product')->where('user_id', $user->id)->first();
         if (!$cart || $cart->items->isEmpty()) {
-            return redirect()->route('cart.index')
-                ->with('error', 'Keranjang kosong!');
+            return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong!');
         }
 
-        // 3️⃣ Buat order + address_id
-        $order = Order::create([
-            'user_id'     => $user->id,
-            'address_id'  => $addressId,
-            'total_amount' => $cart->items->sum(fn($item) => $item->price * $item->quantity),
-            'status'      => 'pending',
-        ]);
+        try {
+            $order = DB::transaction(function () use ($user, $addressId, $cart) {
+                $order = Order::create([
+                    'user_id'      => $user->id,
+                    'transaction_id' => Str::random(8),
+                    'address_id'   => $addressId,
+                    'total_amount' => $cart->items->sum(fn($item) => $item->price * $item->quantity),
+                    'status'       => 'pending',
+                ]);
 
-        // 4️⃣ Order items
-        foreach ($cart->items as $item) {
-            OrderItem::create([
-                'order_id'   => $order->id,
-                'product_id' => $item->product_id,
-                'quantity'   => $item->quantity,
-                'price'      => $item->price,
-                'subtotal'   => $item->price * $item->quantity,
-            ]);
+                $order->transactions()->create([
+                    'payment_method' => 'midtrans',
+                    'amount'         => $order->total_amount,
+                    'status'         => 'pending',
+                ]);
+
+                // insert order items, kurangi stok, hapus cart dll...
+                // ...
+
+                return $order;
+            });
+
+            // ==== bagian Midtrans Snap ====
+            $params = [
+                'transaction_details' => [
+                    'order_id' => 'TRX-' . $order->id . '-' . Str::random(5),
+                    'gross_amount' => $order->total_amount,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->name,
+                    'email'      => $user->email,
+                    'phone'      => $order->address->phone,
+                ],
+                'enabled_payments' => [
+                    'credit_card',
+                    'gopay',
+                    'qris',
+                    'bca_va',
+                    'bni_va',
+                    'bri_va'
+                ],
+                'callbacks' => [
+                    'finish'  => route('orders.finish'),   // sukses bayar
+                    // 'pending' => route('orders.pending'),  // belum bayar
+                    'error'   => route('orders.unfinish'),   // gagal bayar
+                ],
+            ];
+
+            $auth = base64_encode(config('services.midtrans.server_key') . ':');
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Basic ' . $auth,
+            ])->post('https://app.sandbox.midtrans.com/snap/v1/transactions', $params);
+
+            if ($response->successful()) {
+                $body = $response->json();
+
+                // simpan snap_token ke tabel transaksi
+                $order->transactions()->first()->update([
+                    'snap_token' => $body['token'] ?? null,
+                ]);
+
+                $cart->items()->delete();
+                $cart->delete();
+                // redirect ke halaman Snap Midtrans
+                return redirect()->away($body['redirect_url']);
+            } else {
+                return back()->with('error', 'Gagal membuat transaksi Midtrans: ' . $response->body());
+            }
+            // ==== end Midtrans Snap ====
+
+        } catch (\Exception $e) {
+            return redirect()->route('checkout.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // 5️⃣ Kosongkan cart
-        $cart->items()->delete();
-
-        return redirect()
-            ->route('checkout.index')
-            ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
     }
+
 
 
     public function checkout()
@@ -186,6 +227,60 @@ class OrderController extends Controller
             'addresses' => $addresses, // Kirim data alamat ke view
         ]);
     }
+    public function thankYou(Order $order)
+    {
+        // Pastikan order ini milik user yang sedang login
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
-    // edit, update, destroy: tetap default
+        return view('orders.thank_you', [
+            'order' => $order
+        ]);
+    }
+    public function finish(Request $request)
+    {
+        // 1. Ambil order_id dari query parameter yang dikirim Midtrans
+        $midtransOrderId = $request->query('order_id');
+
+        // 2. Pisahkan untuk mendapatkan ID order asli kita
+        $orderId = explode('-', $midtransOrderId)[1];
+
+        // 3. Cari order di database
+        $order = Order::findOrFail($orderId);
+
+        // 4. Pastikan order ini milik user yang sedang login (keamanan)
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+
+        // 5. Tampilkan halaman "Terima Kasih" dengan data order
+        return view('orders.thank_you', [
+            'order' => $order
+        ]);
+    }
+
+    public function unfinish(Request $request)
+    {
+        // Tangani jika pembayaran dibatalkan
+        $orderId = $request->query('order_id');
+        $order = Order::findOrFail($orderId);
+
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Akses tidak diizinkan.');
+        }
+        $order->status = 'cancelled';
+        $order->save();
+
+        // Hapus transaksi
+        $order->transactions()->delete();
+        // Kembalikan stok produk
+        foreach ($order->items as $item) {
+            $item->product->increment('stock', $item->quantity);
+        }
+        // Arahkan kembali ke halaman checkout dengan pesan
+
+        return redirect()->route('checkout.index')
+            ->with('info', 'Anda membatalkan pembayaran. Pesanan Anda masih menunggu untuk dibayar.');
+    }
 }
